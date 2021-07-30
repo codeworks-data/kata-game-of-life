@@ -33,11 +33,51 @@ func main() {
 	board.SetAlive(5, 4)
 	board.SetAlive(5, 2)
 
-	fmt.Printf("%v", board)
+	board2 := game.GetNewBoard(10, 10)
+	board2.SetAlive(2, 3)
+	board2.SetAlive(3, 3)
+	board2.SetAlive(4, 3)
+	board2.SetAlive(4, 4)
+	board2.SetAlive(5, 3)
+	board2.SetAlive(5, 4)
+	board2.SetAlive(6, 1)
+	board2.SetAlive(6, 2)
+	board2.SetAlive(6, 3)
+	board2.SetAlive(6, 4)
+	board2.SetAlive(6, 5)
+	board2.SetAlive(6, 6)
 
-	for i := 0; i < 20; i++ {
-		board = board.ComputeNextGen()
-		fmt.Printf("%v", board)
+	boards := []game.Board{
+		board,
+		board2,
+	}
+
+	channel0 := make(chan game.Board)
+	channel1 := make(chan game.Board)
+
+	for i := 0; i < 15; i++ {
+		
+		go boards[0].ComputeNextGen(channel0)		
+		go boards[1].ComputeNextGen(channel1)
+
+		nbBoardsComputed := 0
+		for nbBoardsComputed < 2 {
+			select {
+			case board := <-channel0:
+				boards[0] = board
+				fmt.Println("Board 0:")
+				fmt.Printf("%v", boards[0])
+			case board := <-channel1:
+				boards[1] = board
+				fmt.Println("Board 1:")
+				fmt.Printf("%v", boards[1])
+			}
+
+			fmt.Print("\n\n")
+			nbBoardsComputed++
+		}
+
+		fmt.Println("------------------------------")
 		time.Sleep(3 * time.Second)
 	}
 

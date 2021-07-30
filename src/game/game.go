@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Board [][]int
 
@@ -29,7 +32,7 @@ func GetNewBoard(height int, width int) Board {
 	return board
 }
 
-func (board Board) ComputeNextGen() Board {
+func (board Board) ComputeNextGen(responseChannel chan Board) {
 	nextGen := GetNewBoard(len(board), len(board[0]))
 
 	for i := range board {
@@ -47,7 +50,7 @@ func (board Board) ComputeNextGen() Board {
 		}
 	}
 
-	return nextGen
+	responseChannel <- nextGen
 }
 
 func (board Board) getNeighboursNb(x int, y int) int {
@@ -79,7 +82,7 @@ func (cell *Cell) IsInsideBoard(board Board) bool {
 func (board Board) String() string {
 	result := ""
 	for i := range board {
-		result += fmt.Sprintf("%v\n", board[i])
+		result += strings.Replace(fmt.Sprintf("%v\n", board[i]), "0", " ", len(board))
 	}
 	return result + "\n\n\n"
 }
